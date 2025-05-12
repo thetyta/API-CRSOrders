@@ -1,10 +1,10 @@
-import Cliente from "../models/ClienteModel.js";
+import Categories from "../models/categoryModel.js"
 
 const get = async(req,res) =>{
     try {
         const id = req.params.id ? req.params.id.toString().replace(/\D/g, '') : null
         if (!id) {
-            const response = await Cliente.findAll({
+            const response = await Categories.findAll({
                 order: 
                 [['id', 'ASC']]
             })
@@ -14,7 +14,7 @@ const get = async(req,res) =>{
             })
         }
 
-        const response = await Cliente.findOne({
+        const response = await Categories.findOne({
             where: {
                 id: id
             }
@@ -36,15 +36,11 @@ const get = async(req,res) =>{
 const create = async (corpo) => {
     try {
         const {
-            nome,
-            cpf,
-            dataNascimento
+            name
         } = corpo
 
-        const response = await Cliente.create({
-            nome,
-            cpf,
-            dataNascimento
+        const response = await Categories.create({
+            name
         })
 
         return response
@@ -55,7 +51,7 @@ const create = async (corpo) => {
 
 const update = async (corpo, id) => {
     try {
-        const response = await Cliente.findOne({
+        const response = await Categories.findOne({
             where: {
                 id
             }
@@ -80,7 +76,7 @@ const destroy = async (req,res) => {
             return res.status(400).send('informa ai paizao')
         }
 
-        const response = await Cliente.findOne({
+        const response = await Categories.findOne({
             where: {
                 id
             }

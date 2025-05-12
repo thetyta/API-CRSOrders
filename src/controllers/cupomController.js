@@ -1,10 +1,10 @@
-import Emprestimo from "../models/EmprestimoModel.js";
+import Cupoms from "../models/cupomModel.js"
 
 const get = async(req,res) =>{
     try {
         const id = req.params.id ? req.params.id.toString().replace(/\D/g, '') : null
         if (!id) {
-            const response = await Emprestimo.findAll({
+            const response = await Cupoms.findAll({
                 order: 
                 [['id', 'ASC']]
             })
@@ -14,7 +14,7 @@ const get = async(req,res) =>{
             })
         }
 
-        const response = await Emprestimo.findOne({
+        const response = await Cupoms.findOne({
             where: {
                 id: id
             }
@@ -35,14 +35,18 @@ const get = async(req,res) =>{
 
 const create = async (corpo) => {
     try {
-        const {
-            idCliente,
-            dataEmprestimo
+        const { 
+            code, 
+            type, 
+            value, 
+            uses 
         } = corpo
 
-        const response = await Emprestimo.create({
-            idCliente,
-            dataEmprestimo
+        const response = await Cupoms.create({
+            code, 
+            type, 
+            value, 
+            uses
         })
 
         return response
@@ -53,7 +57,7 @@ const create = async (corpo) => {
 
 const update = async (corpo, id) => {
     try {
-        const response = await Emprestimo.findOne({
+        const response = await Cupoms.findOne({
             where: {
                 id
             }
@@ -78,7 +82,7 @@ const destroy = async (req,res) => {
             return res.status(400).send('informa ai paizao')
         }
 
-        const response = await Emprestimo.findOne({
+        const response = await Cupoms.findOne({
             where: {
                 id
             }

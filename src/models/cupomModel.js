@@ -1,28 +1,30 @@
 import { DataTypes } from "sequelize";
 import { sequelize } from "../config/postgres.js";
 
-const Cliente = sequelize.define(
-    'clientes',
+const Cupoms = sequelize.define(
+    'cupoms',
     {
         id: {
+            field: 'id_cupom',
             type: DataTypes.INTEGER,
             primaryKey: true,
             autoIncrement: true,
         },
-        nome: {
-            type: DataTypes.STRING(100),
-            allowNull: false
-        },
-        cpf: {
-            type: DataTypes.STRING(14),
+        code: {
+            type: DataTypes.STRING(50),
             allowNull: false,
-            unique: true
         },
-        dataNascimento: {
-            field: 'data_nascimento',
-            type: DataTypes.DATEONLY,
+        type: {
+            type: DataTypes.STRING(255),
+            allowNull: false,
+        },
+        value: {
+            type: DataTypes.INTEGER,
             allowNull: false
-        }
+        },
+        uses: {
+            type: DataTypes.INTEGER,
+        },
     },
     {
         freezeTableName: true,
@@ -30,6 +32,6 @@ const Cliente = sequelize.define(
         createdAt: 'created_at',
         updatedAt: 'updated_at'
     }
-)
+);
 
-export default Cliente
+export default Cupoms;

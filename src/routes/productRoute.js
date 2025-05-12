@@ -1,0 +1,10 @@
+import productController from "../controllers/productController.js";
+
+export default (app) => {
+    app.get('/product', productController.get);
+    app.get('/product/:id', productController.get);
+    app.post('/product', productController.persist);
+    app.post('/product/img', productController.createImg);
+    app.patch('/product/:id', productController.persist);
+    app.delete('/product/:id', productController.destroy);
+}
