@@ -20,11 +20,12 @@ const Orders = sequelize.define(
         },
         totalPrice: {
             field: 'total_price',
-            type: DataTypes.INTEGER,
+            type: DataTypes.DECIMAL(10, 2),
+            allowNull: false
         },
         totalDiscount:{
             field:'total_discount',
-            type: DataTypes.INTEGER,
+            type: DataTypes.DECIMAL(10, 2),
         },
     },
     {

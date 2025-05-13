@@ -19,11 +19,12 @@ const Cupoms = sequelize.define(
             allowNull: false,
         },
         value: {
-            type: DataTypes.INTEGER,
+            type: DataTypes.DECIMAL(10, 2),
             allowNull: false
         },
         uses: {
             type: DataTypes.INTEGER,
+            defaultValue: 1
         },
     },
     {

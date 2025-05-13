@@ -19,7 +19,7 @@ const Products = sequelize.define(
             type: DataTypes.STRING(255),
         },
         price: {
-            type: DataTypes.INTEGER,
+            type: DataTypes.DECIMAL(10, 2),
             allowNull: false
         },
         imageURL: {
