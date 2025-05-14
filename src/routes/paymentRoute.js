@@ -1,9 +1,11 @@
 import paymentController from "../controllers/paymentController.js";
+import adminMiddleware from '../middlewares/adminMiddleware.js';
+import userMiddleware from "../middlewares/userMiddleware.js";
 
 export default (app) => {
-    app.get('/payment', paymentController.get);
-    app.get('/payment/:id', paymentController.get);
-    app.post('/payment', paymentController.persist);
-    app.patch('/payment/:id', paymentController.persist);
-    app.delete('/payment/:id', paymentController.destroy);
+    app.get('/pagamento', userMiddleware, paymentController.get);
+    app.get('/pagamento/:id', userMiddleware, paymentController.get);
+    app.post('/criar-pagamento', adminMiddleware, paymentController.persist);
+    app.patch('/criar-pagamento/:id', adminMiddleware, paymentController.persist);
+    app.delete('/deletar-pagamento/:id', adminMiddleware, paymentController.destroy);
 }

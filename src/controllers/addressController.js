@@ -110,28 +110,40 @@ const destroy = async (req,res) => {
     }
 }
 
-const persist = async (req,res) => {
+const persist = async (req, res) => {
     try {
-        const id = req.params.id ? req.params.id.toString().replace(/\D/g, '') : null
+        const id = req.params.id ? req.params.id.toString().replace(/\D/g, '') : null;
 
-        if(!id){
-            const response = await create(req.body)
+        if (!id) {
+            const response = await create(req.body);
             return res.status(201).send({
                 message: 'criado com sucesso!',
                 data: response
-            })
+            });
         }
-        const response = await update(req.body, id)
-            return res.status(201).send({
-                message: 'atualizado com sucesso!',
-                data: response
-            })
+
+        const address = await Address.findOne({ where: { id } });
+        if (!address) {
+            return res.status(404).send({ message: 'Endereço não encontrado.' });
+        }
+
+        if (
+            req.user.role !== 'admin' &&
+            address.idUser !== req.user.id
+        ) {
+            return res.status(403).send({ message: 'Você não tem permissão para atualizar este endereço.' });
+        }
+
+        const response = await update(req.body, id);
+        return res.status(201).send({
+            message: 'atualizado com sucesso!',
+            data: response
+        });
     } catch (error) {
         return res.status(500).send({
             message: error.message
-        })
+        });
     }
-        
 }
 
 

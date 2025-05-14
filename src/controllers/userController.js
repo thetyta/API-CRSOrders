@@ -3,6 +3,7 @@ import sendMail from "../utils/sendMail.js"
 import jwt from "jsonwebtoken"
 import Users from "../models/userModel.js"
 import { Op } from "sequelize"
+import Products from "../models/productModel.js";
 
 const get = async(req,res) =>{
     try {
@@ -306,34 +307,80 @@ const destroy = async (req,res) => {
     }
 }
 
-const persist = async (req,res) => {
+const persist = async (req, res) => {
     try {
-        const id = req.params.id ? req.params.id.toString().replace(/\D/g, '') : null
+        const id = req.params.id ? req.params.id.toString().replace(/\D/g, '') : null;
 
-        if(!id){
-            const response = await create(req.body)
+        if (!id) {
+            const response = await create(req.body);
             return res.status(201).send({
                 message: 'criado com sucesso!',
                 data: response
-            })
+            });
         }
-        const response = await update(req.body, id)
-            return res.status(201).send({
-                message: 'atualizado com sucesso!',
-                data: response
-            })
+
+        const user = await Users.findOne({ where: { id } });
+        if (!user) {
+            return res.status(404).send({ message: 'Usuário não encontrado.' });
+        }
+
+        if (
+            req.user.role !== 'admin' &&
+            user.id !== req.user.id
+        ) {
+            return res.status(403).send({ message: 'Você não tem permissão para atualizar este usuário.' });
+        }
+
+        const response = await update(req.body, id);
+        return res.status(201).send({
+            message: 'atualizado com sucesso!',
+            data: response
+        });
     } catch (error) {
         return res.status(500).send({
             message: error.message
-        })
+        });
     }
-        
 }
 
+const adicionarAoCarrinho = async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const { idProduct, quantity } = req.body;
+
+        if (!idProduct || !quantity || quantity < 1) {
+            return res.status(400).send({ message: "Produto e quantidade obrigatórios." });
+        }
+
+        const produto = await Products.findByPk(idProduct);
+        if (!produto) {
+            return res.status(404).send({ message: "Produto não encontrado." });
+        }
+
+        const user = await Users.findByPk(userId);
+        let cart = user.cart || [];
+
+        // Verifica se o produto já está no carrinho
+        const index = cart.findIndex(item => item.idProduct === idProduct);
+        if (index > -1) {
+            cart[index].quantity += quantity;
+        } else {
+            cart.push({ idProduct, quantity });
+        }
+
+        user.cart = cart;
+        await user.save();
+
+        return res.status(200).send({ message: "Produto adicionado ao carrinho.", cart });
+    } catch (error) {
+        return res.status(500).send({ message: error.message });
+    }
+};
 
 export default {
     get,
     persist,
+    adicionarAoCarrinho,
     login,
     getPass,
     update,

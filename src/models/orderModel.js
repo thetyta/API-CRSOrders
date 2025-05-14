@@ -18,6 +18,11 @@ const Orders = sequelize.define(
             type: DataTypes.ENUM('pending', 'preparing', 'delivering', 'delivered'),
             defaultValue: 'pending'
         },
+        payStatus: {
+            field: 'pay_status',
+            type: DataTypes.ENUM('pending', 'paid', 'refunded'),
+            defaultValue: 'pending'
+        },
         totalPrice: {
             field: 'total_price',
             type: DataTypes.DECIMAL(10, 2),

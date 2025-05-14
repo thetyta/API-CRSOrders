@@ -1,13 +1,16 @@
 import userController from '../controllers/userController.js';
+import adminMiddleware from '../middlewares/adminMiddleware.js';
+import userMiddleware from '../middlewares/userMiddleware.js';
 
 export default (app) => {
-    app.get('/user', userController.get);
-    app.get('/user/:id', userController.get);
-    app.post('/user', userController.persist);
-    app.patch('/user/:id', userController.persist);
-    app.delete('/user/:id', userController.destroy);
-    app.get('/user/info', userController.getDataByToken);
-    app.post('/forgot-pass-request', userController.getPass)
-    app.post('/forgot-pass-reset', userController.resetPassword)
-    app.post('/user/login', userController.login)
+    app.get('/usuario', adminMiddleware, userController.get);
+    app.get('/usuario/:id', adminMiddleware, userController.get);
+    app.post('/criar-usuario', adminMiddleware, userController.persist);
+    app.patch('/criar-usuario/:id', userMiddleware, userController.persist);
+    app.delete('/deletar-usuario/:id', adminMiddleware, userController.destroy);
+    app.get('/usuario/info', adminMiddleware, userController.getDataByToken);
+    app.post('/usuario/carrinho', userMiddleware, userController.adicionarAoCarrinho);
+    app.post('/esqueci-senha', userController.getPass);
+    app.post('/resetar-senha', userController.resetPassword);
+    app.post('/usuario/login', userController.login);
 }

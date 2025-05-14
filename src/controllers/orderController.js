@@ -1,4 +1,8 @@
 import Orders from "../models/orderModel.js"
+import Payments from "../models/paymentModel.js"
+import orderProducts from "../models/orderProductModel.js"
+import Products from "../models/productModel.js"
+import Users from "../models/userModel.js";
 
 const get = async(req,res) =>{
     try {
@@ -135,10 +139,91 @@ const persist = async (req,res) => {
         
 }
 
+const pagarPedido = async (req, res) => {
+    try {
+        const pedidoId = req.params.id;
+        const userId = req.user.id;
 
+        const pedido = await Orders.findOne({ where: { id: pedidoId, idUserCustomer: userId } });
+        if (!pedido) {
+            return res.status(404).send({ message: "Pedido não encontrado ou não pertence ao usuário." });
+        }
+        if (pedido.status === "preparing" || pedido.status === "delivered" || pedido.status === "delivering" ) {
+            return res.status(400).send({ message: "Pedido já está pago." });
+        }
+        if (pedido.status === "canceled") {
+            return res.status(400).send({ message: "Pedido cancelado, não pode ser pago." });
+        }
+
+        const pagamento = await Payments.create({ name: `Pagamento do pedido ${pedidoId} - ${Date.now()}` });
+        if (!pagamento || !pagamento.id) {
+            return res.status(500).send({ message: "Erro ao registrar pagamento." });
+        }
+
+        pedido.idPayment = pagamento.id;
+        pedido.status = "preparing";
+        await pedido.save();
+
+        return res.status(200).send({ message: "Pedido pago com sucesso!", data: pedido });
+    } catch (error) {
+        console.error("Erro ao pagar pedido:", error);
+        return res.status(500).send({ message: error.message });
+    }
+};
+const criarPedidoDoCarrinho = async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const user = await Users.findByPk(userId);
+
+        if (!user || !user.cart || user.cart.length === 0) {
+            return res.status(400).send({ message: "Carrinho vazio." });
+        }
+
+        let totalPrice = 0;
+        for (const item of user.cart) {
+            const produto = await Products.findByPk(item.idProduct);
+            if (!produto) {
+                return res.status(404).send({ message: `Produto ${item.idProduct} não encontrado.` });
+            }
+            totalPrice += Number(produto.price) * Number(item.quantity);
+        }
+
+        const pedido = await Orders.create({
+            status: 'pending',
+            totalPrice,
+            totalDiscount: 0,
+            idUserCustomer: userId,
+            idAddress: req.body.idAddress,
+            idCupom: req.body.idCupom || null
+        });
+
+        for (const item of user.cart) {
+            await orderProducts.create({
+                idOrder: pedido.id,
+                idProduct: item.idProduct,
+                quantity: item.quantity,
+                priceProducts: (await Products.findByPk(item.idProduct)).price
+            });
+        }
+
+        user.cart = [];
+        await user.save();
+
+        return res.status(201).send({
+            message: 'Pedido criado com sucesso a partir do carrinho!',
+            data: pedido
+        });
+    } catch (error) {
+        return res.status(500).send({ message: error.message });
+    }
+};
+
+// No final do export default:
 export default {
     get,
     persist,
     update,
+    pagarPedido,
+    criarPedidoDoCarrinho, 
     destroy
 }
