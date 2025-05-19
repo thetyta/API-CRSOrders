@@ -324,12 +324,12 @@ const persist = async (req, res) => {
             return res.status(404).send({ message: 'Usuário não encontrado.' });
         }
 
-        if (
-            req.user.role !== 'admin' &&
-            user.id !== req.user.id
-        ) {
-            return res.status(403).send({ message: 'Você não tem permissão para atualizar este usuário.' });
-        }
+        // if (
+        //     req.user.role !== 'admin' &&
+        //     user.id !== req.user.id
+        // ) {
+        //     return res.status(403).send({ message: 'Você não tem permissão para atualizar este usuário.' });
+        // }
 
         const response = await update(req.body, id);
         return res.status(201).send({
