@@ -230,7 +230,7 @@ const resetPassword = async (req, res) => {
         }
         
         const userr = await Users.findOne({
-            where: { id: user.idUser },
+            where: { id: user.id },
         })
 
         if (!userr) {
