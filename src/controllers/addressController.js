@@ -112,26 +112,27 @@ const destroy = async (req,res) => {
 
 const persist = async (req, res) => {
     try {
+        // Supondo que o middleware de autenticação já preenche req.user.id
+        const userId = req.user?.id;
+        if (!userId) {
+            return res.status(401).send({ message: 'Token inválido ou não enviado.' });
+        }
+
         const id = req.params.id ? req.params.id.toString().replace(/\D/g, '') : null;
 
         if (!id) {
-            const response = await create(req.body);
+            // Ao criar, força o endereço a ser do usuário autenticado
+            const response = await create({ ...req.body, idUser: userId });
             return res.status(201).send({
                 message: 'criado com sucesso!',
                 data: response
             });
         }
 
-        const address = await Address.findOne({ where: { id } });
+        // Busca o endereço e verifica se pertence ao usuário
+        const address = await Address.findOne({ where: { id, idUser: userId } });
         if (!address) {
-            return res.status(404).send({ message: 'Endereço não encontrado.' });
-        }
-
-        if (
-            req.user.role !== 'admin' &&
-            address.idUser !== req.user.id
-        ) {
-            return res.status(403).send({ message: 'Você não tem permissão para atualizar este endereço.' });
+            return res.status(404).send({ message: 'Endereço não encontrado ou não pertence ao usuário.' });
         }
 
         const response = await update(req.body, id);

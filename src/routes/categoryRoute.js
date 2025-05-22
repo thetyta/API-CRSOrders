@@ -2,9 +2,9 @@ import categoryController from "../controllers/categoryController.js";
 import adminMiddleware from '../middlewares/adminMiddleware.js';
 
 export default (app) => {
-    app.get('/categoria', adminMiddleware, categoryController.get);
-    app.get('/categoria/:id', adminMiddleware, categoryController.get);
-    app.post('/criar-categoria', adminMiddleware, categoryController.persist);
-    app.patch('/criar-categoria/:id', adminMiddleware, categoryController.persist);
-    app.delete('/deletar-categoria/:id', adminMiddleware, categoryController.destroy);
+    app.get('/categoria', categoryController.get);
+    app.get('/categoria/:id', categoryController.get);
+    app.post('/criar-categoria', categoryController.persist);
+    app.patch('/criar-categoria/:id', categoryController.persist);
+    app.delete('/deletar-categoria/:id', categoryController.destroy);
 }
