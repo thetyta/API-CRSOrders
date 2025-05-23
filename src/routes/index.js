@@ -6,6 +6,7 @@ import orderRoute from "./orderRoute.js";
 import paymentRoute from "./paymentRoute.js";
 import productRoute from "./productRoute.js";
 import userRoute from "./userRoute.js";
+import adminRoute from "./admRoute.js";
 
 function Routes(app){
     userRoute(app)
@@ -16,6 +17,7 @@ function Routes(app){
     orderRoute(app)
     paymentRoute(app)
     productRoute(app)
+    adminRoute(app)
 }
 
 export default Routes;

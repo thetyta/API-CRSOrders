@@ -112,25 +112,32 @@ const destroy = async (req,res) => {
 
 const persist = async (req, res) => {
     try {
-        // Supondo que o middleware de autenticação já preenche req.user.id
         const userId = req.user?.id;
+        const userRole = req.user?.role;
         if (!userId) {
             return res.status(401).send({ message: 'Token inválido ou não enviado.' });
         }
 
         const id = req.params.id ? req.params.id.toString().replace(/\D/g, '') : null;
 
+        // Se for admin, pode definir o idUser pelo body, senão força o id do próprio usuário
+        const targetUserId = userRole === 'admin' && req.body.idUser ? req.body.idUser : userId;
+
         if (!id) {
-            // Ao criar, força o endereço a ser do usuário autenticado
-            const response = await create({ ...req.body, idUser: userId });
+            // Criação
+            const response = await create({ ...req.body, idUser: targetUserId });
             return res.status(201).send({
                 message: 'criado com sucesso!',
                 data: response
             });
         }
 
-        // Busca o endereço e verifica se pertence ao usuário
-        const address = await Address.findOne({ where: { id, idUser: userId } });
+        // Atualização: admin pode alterar qualquer endereço, usuário comum só o próprio
+        const whereClause = userRole === 'admin'
+            ? { id }
+            : { id, idUser: userId };
+
+        const address = await Address.findOne({ where: whereClause });
         if (!address) {
             return res.status(404).send({ message: 'Endereço não encontrado ou não pertence ao usuário.' });
         }
