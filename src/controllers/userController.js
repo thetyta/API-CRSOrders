@@ -244,6 +244,7 @@ const resetPassword = async (req, res) => {
             name: userr.name,
             role: userr.role,
             email: userr.email,
+            cart: userr.cart,
         }
 
 
@@ -348,7 +349,8 @@ const adicionarAoCarrinho = async (req, res) => {
         const userId = req.user.id;
         const { idProduct, quantity } = req.body;
 
-        if (!idProduct || !quantity || quantity < 1) {
+        // Corrija a validação aqui:
+        if (!idProduct || quantity === undefined || quantity === null) {
             return res.status(400).send({ message: "Produto e quantidade obrigatórios." });
         }
 
@@ -356,17 +358,21 @@ const adicionarAoCarrinho = async (req, res) => {
         if (!produto) {
             return res.status(404).send({ message: "Produto não encontrado." });
         }
-
+        
         const user = await Users.findByPk(userId);
-        let cart = user.cart || [];
+        let cart = Array.isArray(user.cart) ? [...user.cart] : [];
 
-        // Verifica se o produto já está no carrinho
-        const index = cart.findIndex(item => item.idProduct === idProduct);
+        const index = cart.findIndex(item => Number(item.idProduct) === Number(idProduct));
         if (index > -1) {
             cart[index].quantity += quantity;
-        } else {
-            cart.push({ idProduct, quantity });
+            if (cart[index].quantity <= 0) {
+                cart.splice(index, 1);
+            }
+        } else if (quantity > 0) {
+            cart.push({ idProduct: Number(idProduct), quantity });
         }
+
+        cart = cart.filter(item => item.quantity > 0);
 
         user.cart = cart;
         await user.save();

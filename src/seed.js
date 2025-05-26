@@ -11,7 +11,7 @@ import { sequelize } from "./config/postgres.js";
 
 async function seed() {
   try {
-    await sequelize.sync({ force: true }); // CUIDADO: apaga tudo e recria as tabelas
+   // await sequelize.sync({ force: true }); // CUIDADO: apaga tudo e recria as tabelas
 
     // Gera hash das senhas
     const senha1 = await bcrypt.hash("senha123", 10);
@@ -27,7 +27,7 @@ async function seed() {
         phone: "48999990001",
         passwordHash: senha1,
         role: "user",
-        cart: null,
+        cart: [],
         email: "joao@email.com"
       },
       {
@@ -37,7 +37,7 @@ async function seed() {
         phone: "48999990002",
         passwordHash: senha2,
         role: "admin",
-        cart: null,
+        cart: [],
         email: "maria@email.com"
       },
       {
@@ -47,7 +47,7 @@ async function seed() {
         phone: "48999990003",
         passwordHash: senha3,
         role: "delivery",
-        cart: null,
+        cart: [],
         email: "carlos@email.com"
       }
     ]);

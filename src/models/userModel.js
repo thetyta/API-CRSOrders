@@ -44,7 +44,7 @@ const Users = sequelize.define(
         },
         cart: {
             type: DataTypes.JSONB,
-            defaultValue: null
+            defaultValue: []
         },
         email: {
             type: DataTypes.STRING(100),
