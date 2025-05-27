@@ -4,6 +4,7 @@ import Users from "./userModel.js";
 import Address from "./addressModel.js";
 import Payments from "./paymentModel.js";
 import Cupoms from "./cupomModel.js";
+import orderProducts from "./orderProductModel.js";
 
 const Orders = sequelize.define(
     'orders',
@@ -91,6 +92,7 @@ Orders.belongsTo(Cupoms, {
         name: 'idCupom',
         field: 'id_cupom'
     }
-})
+});
+
 
 export default Orders;

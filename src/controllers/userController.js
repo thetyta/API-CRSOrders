@@ -360,7 +360,8 @@ const adicionarAoCarrinho = async (req, res) => {
         }
         
         const user = await Users.findByPk(userId);
-        let cart = Array.isArray(user.cart) ? [...user.cart] : [];
+        let cart = Array.isArray(user.toJSON().cart) ? [...user.toJSON().cart] : [];
+        console.log(cart);
 
         const index = cart.findIndex(item => Number(item.idProduct) === Number(idProduct));
         if (index > -1) {
@@ -373,7 +374,8 @@ const adicionarAoCarrinho = async (req, res) => {
         }
 
         cart = cart.filter(item => item.quantity > 0);
-
+        
+        console.log(user.cart);
         user.cart = cart;
         await user.save();
 

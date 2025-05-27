@@ -3,39 +3,43 @@ import Payments from "../models/paymentModel.js"
 import orderProducts from "../models/orderProductModel.js"
 import Products from "../models/productModel.js"
 import Users from "../models/userModel.js";
+// controllers/orderController.js
 
-const get = async(req,res) =>{
-    try {
-        const id = req.params.id ? req.params.id.toString().replace(/\D/g, '') : null
-        if (!id) {
-            const response = await Orders.findAll({
-                order: 
-                [['id', 'ASC']]
-            })
-            return res.status(200).send({
-                message: 'Dados encontrados',
-                data: response
-            })
-        }
+const get = async (req, res) => {
+  try {
+    const pedidos = await Orders.findAll({ order: [['id', 'ASC']] });
+    const usuarios = await Users.findAll({ attributes: ['id', 'name'] });
+    const itens = await orderProducts.findAll();
+    const produtos = await Products.findAll({ attributes: ['id', 'name', 'price', 'imageURL', 'description'] });
 
-        const response = await Orders.findOne({
-            where: {
-                id: id
-            }
-        })
-    if (!response) {
-        return res.status(404).send('not found')
-    }
-        return res.status(200).send({
-                message: 'Dados encontrados',
-                data: response
-        })
-    } catch (error) {
-        return res.status(500).send({
-            message: error.message
-        })
-    }
-}
+    const data = pedidos.map(pedido => {
+      const cliente = usuarios.find(u => u.id === pedido.idUserCustomer);
+      const itensPedido = itens.filter(i => i.idOrder === pedido.id)
+        .map(item => {
+          const produto = produtos.find(p => p.id === item.idProduct);
+          return {
+            name: produto?.name,
+            price: produto?.price,
+            imageURL: produto?.imageURL,
+            description: produto?.description,
+            quantity: item.quantity
+          };
+        });
+      return {
+        id: pedido.id,
+        status: pedido.status,
+        totalPrice: pedido.totalPrice,
+        created_at: pedido.created_at,
+        cliente_nome: cliente?.name,
+        itens: itensPedido
+      };
+    });
+
+    return res.status(200).send({ data });
+  } catch (error) {
+    return res.status(500).send({ message: error.message });
+  }
+};
 
 const create = async (corpo) => {
     try {
