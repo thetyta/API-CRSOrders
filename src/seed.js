@@ -8,10 +8,9 @@ import Payments from "./models/paymentModel.js";
 import Orders from "./models/orderModel.js";
 import OrderProducts from "./models/orderProductModel.js";
 import { sequelize } from "./config/postgres.js";
-
 async function seed() {
   try {
-   // await sequelize.sync({ force: true }); // CUIDADO: apaga tudo e recria as tabelas
+    // await sequelize.sync({ force: true }); // CUIDADO: apaga tudo e recria as tabelas
 
     // Gera hash das senhas
     const senha1 = await bcrypt.hash("senha123", 10);

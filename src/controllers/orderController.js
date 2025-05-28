@@ -179,12 +179,17 @@ const criarPedidoDoCarrinho = async (req, res) => {
         const userId = req.user.id;
         const user = await Users.findByPk(userId);
 
-        if (!user || !user.cart || user.cart.length === 0) {
+        // Use o carrinho enviado pelo frontend, se existir, senão use o do usuário
+        const carrinho = Array.isArray(req.body.cart) && req.body.cart.length > 0
+            ? req.body.cart
+            : user.cart;
+
+        if (!carrinho || carrinho.length === 0) {
             return res.status(400).send({ message: "Carrinho vazio." });
         }
 
         let totalPrice = 0;
-        for (const item of user.cart) {
+        for (const item of carrinho) {
             const produto = await Products.findByPk(item.idProduct);
             if (!produto) {
                 return res.status(404).send({ message: `Produto ${item.idProduct} não encontrado.` });
@@ -198,18 +203,22 @@ const criarPedidoDoCarrinho = async (req, res) => {
             totalDiscount: 0,
             idUserCustomer: userId,
             idAddress: req.body.idAddress,
+            idPayment: req.body.idPayment,
             idCupom: req.body.idCupom || null
         });
 
-        for (const item of user.cart) {
+        // Cria os itens do pedido
+        for (const item of carrinho) {
+            const produto = await Products.findByPk(item.idProduct);
             await orderProducts.create({
                 idOrder: pedido.id,
                 idProduct: item.idProduct,
                 quantity: item.quantity,
-                priceProducts: (await Products.findByPk(item.idProduct)).price
+                priceProducts: produto.price
             });
         }
 
+        
         user.cart = [];
         await user.save();
 

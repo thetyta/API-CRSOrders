@@ -4,6 +4,7 @@ import jwt from "jsonwebtoken"
 import Users from "../models/userModel.js"
 import { Op } from "sequelize"
 import Products from "../models/productModel.js";
+import Address from '../models/addressModel.js'
 
 const get = async(req,res) =>{
     try {
@@ -231,22 +232,27 @@ const resetPassword = async (req, res) => {
         
         const userr = await Users.findOne({
             where: { id: user.id },
-        })
+        });
 
         if (!userr) {
             return res.status(404).send({
                 message: 'Usuário não encontrado.'
             });
         }
-        
+
+        // Busca os endereços do usuário
+        const enderecos = await Address.findAll({
+            where: { idUser: userr.id }
+        });
+
         const resposta = {
             id: userr.id,
             name: userr.name,
             role: userr.role,
             email: userr.email,
             cart: userr.cart,
-        }
-
+            enderecos
+        };
 
         return res.status(200).send({
             resposta

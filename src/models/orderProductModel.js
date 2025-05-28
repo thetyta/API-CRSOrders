@@ -18,7 +18,7 @@ const orderProducts = sequelize.define(
         },
         priceProducts: {
             field: 'price_products',
-            type: DataTypes.INTEGER,
+            type: DataTypes.DECIMAL(10, 2),
             allowNull: false
         },
     },
