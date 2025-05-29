@@ -3,7 +3,7 @@ import Payments from "../models/paymentModel.js"
 import orderProducts from "../models/orderProductModel.js"
 import Products from "../models/productModel.js"
 import Users from "../models/userModel.js";
-// controllers/orderController.js
+import Address from "../models/addressModel.js";
 
 const get = async (req, res) => {
   try {
@@ -11,9 +11,11 @@ const get = async (req, res) => {
     const usuarios = await Users.findAll({ attributes: ['id', 'name'] });
     const itens = await orderProducts.findAll();
     const produtos = await Products.findAll({ attributes: ['id', 'name', 'price', 'imageURL', 'description'] });
+    const enderecos = await Address.findAll({ attributes: ['id', 'street', 'number', 'neighborhood', 'city', 'state', 'zipCode'] });
 
     const data = pedidos.map(pedido => {
       const cliente = usuarios.find(u => u.id === pedido.idUserCustomer);
+      const endereco = enderecos.find(e => e.id === pedido.idAddress);
       const itensPedido = itens.filter(i => i.idOrder === pedido.id)
         .map(item => {
           const produto = produtos.find(p => p.id === item.idProduct);
@@ -28,9 +30,17 @@ const get = async (req, res) => {
       return {
         id: pedido.id,
         status: pedido.status,
+        payStatus: pedido.payStatus, 
         totalPrice: pedido.totalPrice,
+        totalDiscount: pedido.totalDiscount, 
         created_at: pedido.created_at,
+        idUserCustomer: pedido.idUserCustomer, 
+        idUserDelivery: pedido.idUserDelivery, 
+        idAddress: pedido.idAddress, 
+        idPayment: pedido.idPayment, 
+        idCupom: pedido.idCupom, 
         cliente_nome: cliente?.name,
+        cliente_endereco: endereco ? `${endereco.street}, ${endereco.number}, ${endereco.neighborhood}, ${endereco.city} - ${endereco.state}, ${endereco.zipCode}` : null,
         itens: itensPedido
       };
     });
@@ -179,7 +189,6 @@ const criarPedidoDoCarrinho = async (req, res) => {
         const userId = req.user.id;
         const user = await Users.findByPk(userId);
 
-        // Use o carrinho enviado pelo frontend, se existir, senão use o do usuário
         const carrinho = Array.isArray(req.body.cart) && req.body.cart.length > 0
             ? req.body.cart
             : user.cart;
