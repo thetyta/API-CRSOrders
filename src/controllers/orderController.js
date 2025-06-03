@@ -15,6 +15,7 @@ const get = async (req, res) => {
 
     const data = pedidos.map(pedido => {
       const cliente = usuarios.find(u => u.id === pedido.idUserCustomer);
+      const entregador = usuarios.find(u => u.id === pedido.idUserDelivery);
       const endereco = enderecos.find(e => e.id === pedido.idAddress);
       const itensPedido = itens.filter(i => i.idOrder === pedido.id)
         .map(item => {
@@ -41,8 +42,11 @@ const get = async (req, res) => {
         idCupom: pedido.idCupom, 
         cliente_nome: cliente?.name,
         cliente_endereco: endereco ? `${endereco.street}, ${endereco.number}, ${endereco.neighborhood}, ${endereco.city} - ${endereco.state}, ${endereco.zipCode}` : null,
+        entregador_nome: entregador?.name,
         itens: itensPedido
       };
+      
+      
     });
 
     return res.status(200).send({ data });
